@@ -199,6 +199,20 @@ bool RMVideoCapture::setExposureTime(bool auto_exp, int t){
     return true;
 }
 
+void RMVideoCapture::setWhiteBalance(int val){
+    struct v4l2_control ctrl;
+    ctrl.id = V4L2_CID_AUTO_N_PRESET_WHITE_BALANCE;
+    ctrl.value = V4L2_WHITE_BALANCE_MANUAL;
+    if(xioctl(fd, VIDIOC_S_CTRL, &ctrl)==0){
+            printf("reset white balance failed!\r\n");
+    }
+    ctrl.id = V4L2_CID_WHITE_BALANCE_TEMPERATURE;
+    ctrl.value = val;
+    if(xioctl(fd, VIDIOC_S_CTRL, &ctrl)==0){
+            printf("set white balance failed!\r\n");
+    }
+}
+
 bool RMVideoCapture::changeVideoFormat(int width, int height, bool mjpg){
     closeStream();
     restartCapture();
@@ -294,8 +308,8 @@ void RMVideoCapture::info(){
             (caps.version>>16)&&0xff,
             (caps.version>>24)&&0xff,
             caps.capabilities);
-
-
+    camnum = caps.bus_info[17] -48;
+    std::cout<<"------cam-----number----:"<<camnum<<std::endl;
     struct v4l2_cropcap cropcap = {0};
     cropcap.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
     if (-1 == xioctl (fd, VIDIOC_CROPCAP, &cropcap))  {
@@ -359,6 +373,25 @@ int RMVideoCapture::xioctl(int fd, int request, void *arg){
     return r;
 }
 
-
+void CamSetMode(RMVideoCapture &cap1,RMVideoCapture &cap2,RMVideoCapture &cap3,int picsize,bool uphealthy){
+    switch (picsize){
+        case 1280:{
+            cap1.changeVideoFormat(1280,720);
+            cap2.changeVideoFormat(1280,720);
+            if(uphealthy){
+               cap3.changeVideoFormat(1280,720);
+            }
+            break;
+        }
+        case 1920:{
+            cap1.changeVideoFormat(1920,1080);
+            cap2.changeVideoFormat(1920,1080);
+            if(uphealthy){
+               cap3.changeVideoFormat(1920,1080);
+            }
+            break;
+        }
+    }
+}
 
 

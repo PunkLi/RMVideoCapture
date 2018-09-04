@@ -20,6 +20,7 @@ IN THE SOFTWARE.
 
 class RMVideoCapture {
 public:
+    RMVideoCapture(){};
     RMVideoCapture(const char * device, int size_buffer = 1);
     ~RMVideoCapture();
     bool startStream();
@@ -32,6 +33,7 @@ public:
     bool setVideoFPS(int fps);
     bool setBufferSize(int bsize);
     void restartCapture();
+    void setWhiteBalance(int val);
     int getFrameCount(){
         return cur_frame;
     }
@@ -39,7 +41,9 @@ public:
     void info();
 
     RMVideoCapture& operator >> (cv::Mat & image);
-
+public:
+    int camnum;
+    int fd;
 private:
     void cvtRaw2Mat(const void * data, cv::Mat & image);
     bool refreshVideoFormat();
@@ -54,7 +58,7 @@ private:
     unsigned int capture_width;
     unsigned int capture_height;
     unsigned int format;
-    int fd;
+
     unsigned int buffer_size;
     unsigned int buffr_idx;
     unsigned int cur_frame;
@@ -62,3 +66,4 @@ private:
     const char * video_path;
 };
 
+void CamSetMode(RMVideoCapture &cap1,RMVideoCapture &cap2,RMVideoCapture &cap3,int picsize,bool uphealthy);
